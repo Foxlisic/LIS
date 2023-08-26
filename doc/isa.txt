@@ -1,0 +1,63 @@
+# ПЕРЕМЕЩЕНИЯ
+---------------------------------------
+00 AA **        MOV A, I32
+01 BB AA        MOV A, B
+02 BB AA        MOV A, BYTE [B]
+03 BB AA        MOV A, WORD [B]
+04 BB AA        MOV A, DWORD [B]
+05 BB AA        MOV BYTE [A], B
+06 BB AA        MOV WORD [A], B
+07 BB AA        MOV DWORD [A], B
+
+# УМНОЖЕНИЕ И ДЕЛЕНИЕ
+---------------------------------------
+08 BB CC AA RR  MUL B, C => A, R
+09 BB CC AA RR  DIV B, C => A, R
+
+# STACK
+---------------------------------------
+0C II           CALL I32
+0D              RET
+0E nn ...       PUSH ...    Массовый push/pop
+0F nn ...       POP  ...
+
+# АЛУ
+---------------------------------------
+10 AA BB CC     ADD C, A, B
+11 AA BB CC     ADC C, A, B
+12 AA BB CC     SUB C, A, B
+13 AA BB CC     SBC C, A, B
+14 AA BB CC     AND C, A, B
+15 AA BB CC     XOR C, A, B
+16 AA BB CC     OR  C, A, B
+17 AA BB        CMP A, B
+
+# СДВИГИ
+---------------------------------------
+18 AA BB        ROL A, B
+19 AA BB        ROR A, B
+1A AA BB        SHL A, B
+1B AA BB        SHR A, B
+1C AA BB        RCL A, B
+1D AA BB        RCR A, B
+1E AA S8        MOV A, S8
+1F AA BB        SAR A, B
+
+# JUMP :: OSZC
+---------------------------------------
+70 **           JMP b8          ; Короткий переход
+71 **           JMP i32         ; Длинный переход
+72 **           JC  b8
+73 **           JNC b8
+74 **           JZ  b8
+75 **           JNZ b8
+76 **           JBE b8
+77 **           JA  b8
+78 **           JS  b8
+79 **           JNS b8
+7A AA           JMP A           ; PC = A
+7B AA           USER            ; (!) Переход в UserSpace
+7C **           JL  b8          ; Знаковый A < B
+7D **           JNL b8          ; Знаковый A >= B
+7E **           JLE b8          ; Знаковый A <= B
+7F **           JG  b8          ; Знаковый A > B
