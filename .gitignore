@@ -4,3 +4,5 @@ vvp.log
 tb.vcd
 tb.gtkw
 tb.hex
+*.s
+tb.bin

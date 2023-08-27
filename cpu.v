@@ -61,7 +61,7 @@ else begin
             8'h05, 8'h06, 8'h07: t <= 4;
             // 5T MUL B, C => A, R
             8'h08: t <= 14;
-            // DIV B, C => A, R
+            // 38T DIV B, C => A, R
             8'h09: t <= 15;
             // 3T RET
             8'h0D: begin t <= 10; ra <= 255; end
@@ -336,21 +336,22 @@ wire [31:0] t4 = rt[3] ? {t3[ 7:0], t3[ 31:8]} : t3;
 wire [31:0] t5 = rt[4] ? {t4[15:0], t4[31:16]} : t4;
 
 // Диапазоны
-wire [ 3:0] m1 = r2[1] ? {r2[   0],     2'h3} : r2[0];
-wire [ 7:0] m2 = r2[2] ? {m1[ 3:0],     4'hF} : m1;
-wire [15:0] m3 = r2[3] ? {m2[ 7:0],    8'hFF} : m2;
-wire [31:0] m4 = r2[4] ? {m3[15:0], 16'hFFFF} : m3;
+wire [ 3:0] m1 = rt[1] ? {rt[   0],     2'h3} : rt[0];
+wire [ 7:0] m2 = rt[2] ? {m1[ 3:0],     4'hF} : m1;
+wire [15:0] m3 = rt[3] ? {m2[ 7:0],    8'hFF} : m2;
+wire [31:0] m4 = rt[4] ? {m3[15:0], 16'hFFFF} : m3;
+wire [31:0] m5 = opc[0] ? ~m4 : m4;
 
 // Итоговый результат вращения
 wire [31:0] _rot =
     alu == 3'h0 ||
     alu == 3'h1 ? t5 :                  // ROL, ROR
-    alu == 3'h2 ? (t5 & ~m4) :          // SHL
-    alu == 3'h3 ? (t5 &  m4) :          // SHR
-    alu == 3'h4 ? (t5 & ~m4) | (flag[CF] ?  m4 : 0) : // RCL
-    alu == 3'h5 ? (t5 &  m4) | (flag[CF] ? ~m4 : 0) : // RCR
-    alu == 3'h6 ? (t5 & ~m4) :          // SHL
-        r1[31] ? t5 | ~m4 : t5 & m4;    // SAR
+    alu == 3'h2 ? (t5 & ~m5) :          // SHL
+    alu == 3'h3 ? (t5 &  m5) :          // SHR
+    alu == 3'h4 ? (t5 & ~m5) | (flag[CF] ?  m5 : 0) : // RCL
+    alu == 3'h5 ? (t5 &  m5) | (flag[CF] ? ~m5 : 0) : // RCR
+    alu == 3'h6 ? (t5 & ~m5) :          // SHL
+        r1[31] ? t5 | ~m4 : t5 & m5;    // SAR
 
 // Флаги после выполнения операции
 wire [ 3:0] _flag_rot = {1'b0, _rot[31], _rot == 32'b0, t5[opc[0] ? 31 : 0]};
