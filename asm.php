@@ -5,12 +5,13 @@ $out = $argv[2] ?? str_replace('.asm', '.s', $in);
 
 file_put_contents($out, join("\n", parse_file($in) ));
 
+// Распарсить файл в том числе рекурсивно
 function parse_file($in) {
 
-    $alu  = ['add'=>'0x10','adc'=>'0x11','sub'=>'0x12','sbc'=>'0x13','and'=>'0x14','xor'=>'0x15','or'=>'0x16','cmp'=>'0x17'];
-    $shr  = ['rol'=>'0x18','ror'=>'0x19','shl'=>'0x1A','shr'=>'0x1B','rcl'=>'0x1C','rcr'=>'0x1D',             'sar'=>'0x1F'];
     $res  = [];
     $rows = [];
+    $alu  = ['add'=>'0x10','adc'=>'0x11','sub'=>'0x12','sbc'=>'0x13','and'=>'0x14','xor'=>'0x15','or'=>'0x16','cmp'=>'0x17'];
+    $shr  = ['rol'=>'0x18','ror'=>'0x19','shl'=>'0x1A','shr'=>'0x1B','rcl'=>'0x1C','rcr'=>'0x1D',             'sar'=>'0x1F'];
 
     // Подрубка файлов
     foreach (file($in) as $row) {
@@ -91,5 +92,3 @@ function parse_file($in) {
 
     return array_filter($res, function($e) { return trim($e) != ''; });
 }
-
-
