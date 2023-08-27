@@ -73,7 +73,8 @@ function parse_file($in) {
         else if (preg_match('~jpr(\d+)~i', $chk, $c)) {
             $res[] = "db 0x7A,".$c[1];
         } else if (preg_match('~jr\s+(.+)~i', $row, $c)) {
-            $res[] = "jmp short ".$c[1];
+            $res[] = "db 0x70";
+            $res[] = "db ".$c[1]."-$-1";
         } else if (preg_match('~(jp|call)\s+(.+)~i', $row, $c)) {
             $res[] = "db ".['call'=>'0x0C','jp'=>'0x71'][$c[1]];
             $res[] = "dd {$c[2]}";
