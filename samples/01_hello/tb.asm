@@ -17,5 +17,4 @@ stops:  je      stops               ; Если 0, то остановиться
         add     r2, r4              ; SI += 1
         add     r3, r5              ; DI += 2
         jr      @b                  ; Повтор
-
 str1:   db      "HELLO WORLD!",0

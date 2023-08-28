@@ -107,13 +107,13 @@ always @(posedge clock) begin
     case (X[2:0])
 
         // Запрос на ASCII-символ
-        0: begin address <= {1'b1, id[10:0], 1'b0}; end
+        0: begin address <= {1'b0, id[10:0], 1'b0}; end
 
         // Сохранить ASCII -> tchar, запрос на атрибут
         1: begin tchar <= data; address[0] <= 1'b1; end
 
         // Сохранить атрибут, запрос на знакогенератор
-        2: begin tattr <= data; address <= {1'b0, tchar[7:0], Y[3:0]}; end
+        2: begin tattr <= data; address <= {1'b1, tchar[7:0], Y[3:0]}; end
 
         // Сохранить значение битовой маски
         3: begin tchar <= data; end

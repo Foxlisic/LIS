@@ -2,6 +2,9 @@
  * Простой 32-х битный процессор с собственной архитектурой
  */
 
+/* verilator lint_off CASEOVERLAP */
+/* verilator lint_off CASEINCOMPLETE */
+
 module cpu
 (
     input               clock,

@@ -2,20 +2,22 @@ CONF=-lSDL2
 VPAR=-Wall -Wno-unused -Wno-width
 VINC=/usr/share/verilator/include
 
-all: asm ica tbc
+all: asm tbc
+	./tb tb.bin
 asm:
 	php asm.php tb.asm
 	fasm tb.s tb.bin
-ica:
+	php tb.php tb.bin tb.hex
 	iverilog -g2005-sv -o tb.qqq tb.v cpu.v
 	vvp tb.qqq -o tb.vcd > vvp.log
 	rm tb.qqq
 tbc:
 	verilator $(VPAR) -cc ga.v
+	verilator $(VPAR) -cc cpu.v
 	cd obj_dir && make -f Vga.mk
-	g++ -o tb -I$(VINC) tb.cc $(VINC)/verilated.cpp obj_dir/Vga__ALL.a $(CONF)
+	cd obj_dir && make -f Vcpu.mk
+	g++ -o tb -I$(VINC) tb.cc $(VINC)/verilated.cpp obj_dir/Vga__ALL.a obj_dir/Vcpu__ALL.a $(CONF)
 	strip tb
-	./tb
 wav:
 	gtkwave tb.gtkw
 video:

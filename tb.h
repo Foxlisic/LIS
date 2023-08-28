@@ -288,9 +288,12 @@ public:
     // Открытые поля
     int     kb, mx, my, ms, mb;
     Vga*    ga;
+    Vcpu*   cpu;
 
     // Видеопамять
-    int     memory[8192];
+    uint8_t* memory;
+    uint32_t stack[1024];
+    uint32_t regs[256];
 
     // Конструктор и деструктор
      Main(int w, int h, int scale, int fps);
@@ -300,6 +303,7 @@ public:
     int     event();
     void    update();
     void    destroy();
+    void    load(int, char**);
     void    pset(int x, int y, Uint32 cl);
     void    frame();
     void    vga(int R, int G, int B, int HS, int VS, int save);
@@ -325,9 +329,11 @@ Main::Main(int w, int h, int scale, int fps) {
     vga_x    = 0;
     vga_y    = 2;
     ga       = new Vga;
+    cpu      = new Vcpu;
 
     width  = w * scale;
     height = h * scale;
+    memory = (uint8_t*)malloc(1024*1024);
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
         exit(1);
@@ -349,16 +355,71 @@ Main::Main(int w, int h, int scale, int fps) {
     frame_length     = 1000 / (fps ? fps : 1);
     frame_prev_ticks = SDL_GetTicks();
 
-    // Загрузить шрифты и видеообласть
-    for (int i = 0; i < 4096; i++) memory[i] = asciicp866[i];
+    // Заполнить символами
     for (int i = 0; i < 2048; i++) {
-        memory[2*i+4096] = i;
-        memory[2*i+4097] = 0x17;
+        memory[0xB8000 + 2*i] = i;
+        memory[0xB8001 + 2*i] = 0x17;
     }
+
+    // Загрузить шрифты
+    for (int i = 0; i < 4096; i++) {
+        memory[0xB9000 + i] = asciicp866[i];
+    }
+
+
+    // Сброс процессора
+    cpu->ce      = 1;
+    cpu->reset_n = 0;
+    cpu->clock   = 0; cpu->eval();
+    cpu->clock   = 1; cpu->eval();
+    cpu->reset_n = 1;
+}
+
+// Загрузка данных в процессор
+void Main::load(int argc, char** argv) {
+
+    if (argc > 1) {
+        FILE* fp = fopen(argv[1], "rb");
+        if (fp) {
+            fread(memory, 1, 256*1024, fp);
+            fclose(fp);
+        }
+    }
+
 }
 
 Main::~Main() {
     destroy();
+}
+
+void Main::frame() {
+
+    for (int i = 0; i < 100000; i++) {
+
+        // Запись/Чтение из памяти именно в такой очередности
+        if (cpu->we) memory[cpu->address & 0xFFFFF] = cpu->out;
+        cpu->in = memory[cpu->address & 0xFFFFF];
+
+        // Стек
+        if (cpu->sw) stack[cpu->sp] = cpu->so;
+        cpu->si = stack[cpu->sp];
+
+        // Регистровый файл
+        if (cpu->rw) regs[cpu->ra] = cpu->ro;
+        cpu->r1 = regs[cpu->ra];
+        cpu->r2 = regs[cpu->rb];
+
+        // Выполнение процессорной логики
+        cpu->clock = 0; cpu->eval();
+        cpu->clock = 1; cpu->eval();
+
+        // Графический адаптер
+        ga->data  = memory[ 0xB8000 + ga->address ];
+        ga->clock = 0; ga->eval();
+        ga->clock = 1; ga->eval();
+
+        vga(ga->R<<4, ga->G<<4, ga->B<<4, ga->HS, ga->VS, 1);
+    }
 }
 
 // Ожидание событий
@@ -476,21 +537,6 @@ void Main::vga(int R, int G, int B, int HS, int VS, int save) {
 
     // Вывод на экран
     pset(vga_x-(96-48+2), vga_y-(35-2+4), (R<<(16)) + (G<<(8)) + (B));
-}
-
-void Main::frame() {
-
-    for (int i = 0; i < 100000; i++) {
-
-        // Интерфейс памяти
-        ga->data = memory[ ga->address ] & 255;
-
-        // Исполнение одногот такта
-        ga->clock = 0; ga->eval();
-        ga->clock = 1; ga->eval();
-
-        vga(ga->R<<4, ga->G<<4, ga->B<<4, ga->HS, ga->VS, 1);
-    }
 }
 
 
