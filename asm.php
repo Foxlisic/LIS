@@ -55,6 +55,8 @@ function parse_file($in) {
         // Арифметика
         else if (preg_match('~(mul|div)r(\d+),r(\d+)=>r(\d+),r(\d+)~', $chk, $c)) {
             $res[] = "db ".['mul'=>8,'div'=>9][$c[1]].",{$c[2]},{$c[3]},{$c[4]},{$c[5]}";
+        } else if (preg_match('~mulr(\d+),r(\d+)=>r(\d+)~', $chk, $c)) {
+            $res[] = "db 0x08,{$c[1]},{$c[2]},{$c[3]},{$c[3]}";
         } else if (preg_match('~(add|adc|sub|sbc|and|xor|or)r(\d+),r(\d+),r(\d+)~', $chk, $c)) {
             $res[] = "db ".$alu[$c[1]].",{$c[3]},{$c[4]},{$c[2]}"; // Расширенная версия
         } else if (preg_match('~(add|adc|sub|sbc|and|xor|or)r(\d+),r(\d+)~', $chk, $c)) {
@@ -82,7 +84,7 @@ function parse_file($in) {
             $res[] = "db 0x0D";
         }
         // Условные переходы
-        else if (preg_match('~(jc|jnc|jz|jnz|jbe|ja|js|jns|jl|jnl|jle|jg)\s+(.+)~', $row, $c)) {
+        else if (preg_match('~(jc|jnc|jz|jnz|je|jne|jb|jnb|jbe|ja|js|jns|jl|jnl|jle|jg)\s+(.+)~', $row, $c)) {
             $res[] = $c[1]." short ".$c[2];
         }
         // Все остальное

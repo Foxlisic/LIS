@@ -2,7 +2,7 @@ CONF=-lSDL2
 VPAR=-Wall -Wno-unused -Wno-width
 VINC=/usr/share/verilator/include
 
-all: asm ica
+all: asm ica tbc
 asm:
 	php asm.php tb.asm
 	fasm tb.s tb.bin

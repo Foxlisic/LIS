@@ -257,8 +257,8 @@ else begin
 
             0: begin ra <= in; pc <= pc + 1; end
             1: begin rb <= in; pc <= pc + 1; end
-            2: begin ra <= in; pc <= pc + 1; rw <= 1; ro <= imul[31:0];  end
-            3: begin ra <= in; pc <= pc + 1; rw <= 1; ro <= imul[63:32]; end
+            2: begin ra <= in; pc <= pc + 1; rw <= 1; ro <= imul[63:32];  end
+            3: begin ra <= in; pc <= pc + 1; rw <= 1; ro <= imul[31:0]; end
 
         endcase
 
@@ -301,7 +301,7 @@ wire [7:0] br =
     (flag[OF] ^ flag[SF]),              // JL
     1'b0,                               // Не используется
     flag[SF],
-    flag[CF] | flag[ZF],                // JBE
+    flag[CF] | flag[ZF],                // JBE | JA
     flag[ZF],
     flag[CF],
     1'b0                                // Не используется

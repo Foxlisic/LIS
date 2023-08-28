@@ -12,12 +12,8 @@ int main(int argc, char **argv) {
     // -------------------------------------
 
     // Обработка возникшего события
-    while (int event = app->event()) {
-
-        // 1 кадр = 1 млн тактов
-        if (event == EvtRedraw) {
-            app->frame();
-        }
+    while (app->event()) {
+        app->frame();
     }
 
     delete app;
